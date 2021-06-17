@@ -1,0 +1,110 @@
+{
+  "name": "@pawel-up/html.md",
+  "description": "No-dependency, ESM, in browser HTML to markdown converter",
+  "version": "0.1.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "CC-BY-4.0",
+  "keywords": [
+    "markdown",
+    "html"
+  ],
+  "author": {
+    "name": "Pawel Uchida-Psztyc",
+    "email": "pawel.psztyc@gmail.com"
+  },
+  "contributors": [
+    "Your name can be here!"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jarrodek/html.md.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jarrodek/html.md/issues",
+    "email": "pawel.psztyc@gmail.com"
+  },
+  "devDependencies": {
+    "@advanced-rest-client/arc-demo-helper": "^3.0.2",
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "@open-wc/testing": "^2.5.33",
+    "@web/dev-server": "^0.1.17",
+    "@web/test-runner": "^0.13.8",
+    "@web/test-runner-playwright": "^0.8.6",
+    "eslint": "^7.28.0",
+    "eslint-config-prettier": "^8.3.0",
+    "husky": "^6.0.0",
+    "lint-staged": "^11.0.0",
+    "typescript": "^4.3.2",
+    "typescript-lit-html-plugin": "^0.9.0"
+  },
+  "scripts": {
+    "start": "web-dev-server --app-index demo/index.html --node-resolve --open --watch --root-dir .",
+    "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
+    "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
+    "lint:types": "tsc",
+    "lint": "npm run lint:eslint",
+    "format": "npm run format:eslint",
+    "test": "web-test-runner test/**/*.test.js --coverage --node-resolve --playwright --browsers chromium firefox webkit",
+    "test:watch": "web-test-runner test/**/*.test.js --node-resolve --watch --playwright --browsers chromium"
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "eslint-config-prettier"
+    ],
+    "env": {
+      "browser": true,
+      "node": false,
+      "mocha": false,
+      "es2020": true
+    },
+    "overrides": [
+      {
+        "files": [
+          "demo/**/*.js",
+          "test/**/*.js",
+          "**/demo/**/*.html"
+        ],
+        "rules": {
+          "no-console": "off",
+          "no-unused-expressions": "off",
+          "no-plusplus": "off",
+          "no-param-reassing": "off",
+          "class-methods-use-this": "off",
+          "import/no-extraneous-dependencies": "off"
+        }
+      },
+      {
+        "files": [
+          "**/*.js"
+        ],
+        "rules": {
+          "no-plusplus": "off",
+          "no-continue": "off",
+          "class-methods-use-this": "off"
+        }
+      }
+    ],
+    "parserOptions": {
+      "sourceType": "module"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "arrowParens": "always",
+    "printWidth": 240,
+    "trailingComma": "all"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ]
+  }
+}
