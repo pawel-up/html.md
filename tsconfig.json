@@ -3,7 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2019", "dom"],
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
@@ -13,6 +13,6 @@
     "esModuleInterop": true,
     "plugins": []
   },
-  "include": ["**/*.js"],
+  "include": ["**/*.js", "**/*.d.ts"],
   "exclude": []
 }

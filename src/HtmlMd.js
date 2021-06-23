@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import htmlParser from './HtmlParser.js';
 import { MdGenerator } from './MdGenerator.js';
 

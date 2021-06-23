@@ -19,10 +19,136 @@ class ComponentPage extends DemoPage {
       const input = /** @type HTMLTextAreaElement */ (document.getElementById('parserInput'));
       // input.value = document.body.outerHTML;
       input.value = `
-<h1>This is a test content</h1>
-<p>This should be transformed to a paragraph</p>.
-<div>Div elements are also a paragraph</div>
-<h2>Usage</h2>
+<h1 id="this-is-an-example-markdown">This is an example markdown</h1>
+<p>This <code>code</code> value id editable.</p>
+<p><strong>Focus</strong> on the text and start editing.</p>
+<p>More info: <a href="google.com/?q=markdown">google.com</a></p>
+<p><strong>Underline</strong> value.</p>
+<h2 id="a-code-block">A code block</h2>
+<pre><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><a class="token url-link" href="http://google.com">http://google.com</a><span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>Google<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h2 id="a-table">A table</h2>
+<table>
+<thead>
+<tr>
+<th>var</th>
+<th>default value</th>
+<th>desc</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>debug</td>
+<td><code>false</code></td>
+<td>Enabled the debug messages</td>
+</tr>
+<tr>
+  <td>Very long text</td>
+  <td>Simple</td>
+  <td>Very long text</td>
+</tr>
+</tbody></table>
+
+<h2 id="a-table">Table aligned</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">var</th>
+      <th style="text-align: center">default value</th>
+      <th style="text-align: right">desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>debug</td>
+      <td><code>false</code></td>
+      <td>Enabled the debug messages</td>
+    </tr>
+    <tr>
+      <td>Very long text</td>
+      <td>Simple</td>
+      <td>Very long text</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>It's very easy to make some words <strong>bold</strong> and other words <em>italic</em> with Markdown. You can even <a href="http://google.com">link to Google!</a></p>
+<p>If you want to embed images, this is how you do it:</p>
+<p><img src="https://octodex.github.com/images/yaktocat.png" alt="Image of Yaktocat"></p>
+<h1 id="structured-documents">Structured documents</h1>
+<p>Sometimes it's useful to have different levels of headings to structure your documents. Start lines with a <code>#</code> to create headings. Multiple <code>##</code> in a row denote smaller heading sizes.</p>
+<h3 id="this-is-a-third-tier-heading">This is a third-tier heading</h3>
+<p>You can use one <code>#</code> all the way up to <code>######</code> six for different heading sizes.</p>
+<p>If you'd like to quote someone, use the &gt; character before the line:</p>
+<blockquote>
+<p>Coffee. The finest organic suspension ever devised... I beat the Borg with it.</p>
+<ul>
+<li>Captain Janeway</li>
+</ul>
+</blockquote>
+<p>There are many different ways to style code with GitHub's markdown. If you have inline code blocks, wrap them in backticks: <code>var example = true</code>.  If you've got a longer block of code, you can indent with four spaces:</p>
+<pre><code><span class="token keyword">if</span> <span class="token punctuation">(</span>isAwesome<span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token boolean">true</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>GitHub also supports something called code fencing, which allows for multiple lines without indentation:</p>
+<pre><code><span class="token keyword">if</span> <span class="token punctuation">(</span>isAwesome<span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token boolean">true</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>And if you'd like to use syntax highlighting, include the language:</p>
+<pre><code class="language-javascript"><span class="token keyword">if</span> <span class="token punctuation">(</span>isAwesome<span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token boolean">true</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>GitHub supports many extras in Markdown that help you reference and link to people. If you ever want to direct a comment at someone, you can prefix their name with an @ symbol: Hey @kneath — love your sweater!</p>
+<p>But I have to admit, tasks lists are my favorite:</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> This is a complete item</li>
+<li><input disabled="" type="checkbox"> This is an incomplete item</li>
+</ul>
+<p>When you include a task list in the first comment of an Issue, you will see a helpful progress bar in your list of issues. It works in Pull Requests, too!</p>
+<p>And, of course emoji!</p>
+<hr/>
+<h2 id="emphasis">Emphasis</h2>
+<p><em>This text will be italic</em>
+<em>This will also be italic</em></p>
+<p><strong>This text will be bold</strong>
+<strong>This will also be bold</strong></p>
+<p><em>You <strong>can</strong> combine them</em></p>
+<p>Or you can <del>delete</del> a word!</p>
+<h3 id="unordered-list">Unordered list</h3>
+<ul>
+  <li>Item 1</li>
+  <li>Item 2<ul>
+    <li>Item 2a</li>
+    <li>Item 2b</li>
+  </ul>
+  </li>
+</ul>
+<h3 id="ordered-list">Ordered list</h3>
+<ol>
+<li>Item 1</li>
+<li>Item 2</li>
+<li>Item 3<ol>
+<li>Item 3a</li>
+<li>Item 3b</li>
+</ol>
+</li>
+</ol>
+<h3 id="mixed-list">Mixed list</h3>
+<ol>
+<li>Item 1</li>
+<li>Item 2</li>
+<li>Item 3<ul>
+<li>Item 3a</li>
+<li>Item 3b</li>
+<li>Item 3c</li>
+</ul>
+</li>
+</ol>
+
+<!-- We also support comments -->
+      
 `;
     }, 1);
   }
@@ -32,7 +158,7 @@ class ComponentPage extends DemoPage {
     const content = input.value;
     const parser = new HtmlMd();
     const result = parser.generate(content);
-    console.log(result);
+    this.output = result;
   }
 
   contentTemplate() {
@@ -51,6 +177,7 @@ class ComponentPage extends DemoPage {
       </p>
 
       ${this._inputTemplate()}
+      ${this._outputTemplate()}
     </section>
     `;
   }
@@ -64,6 +191,17 @@ class ComponentPage extends DemoPage {
     `;
   }
 
+  _outputTemplate() {
+    const { output } = this;
+    if (!output) {
+      return '';
+    }
+    return html`
+    <div class="markdown-output">
+      <pre><code>${output}</code></pre>
+    </div>
+    `;
+  }
 }
 const instance = new ComponentPage();
 instance.render();
