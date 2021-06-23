@@ -6,6 +6,10 @@ A library that takes an HTML string or an Element reference and translates it to
 
 Note, this library works in a **browser** environment only. This won't work in `Node.js`.
 
+[![Published on NPM](https://img.shields.io/npm/v/@pawel-up/html.md.svg)](https://www.npmjs.com/package/@pawel-up/html.md)
+
+[![Tests and publishing](https://github.com/jarrodek/html.md/actions/workflows/deployment.yml/badge.svg)](https://github.com/jarrodek/html.md/actions/workflows/deployment.yml)
+
 ## Usage
 
 ### Installation

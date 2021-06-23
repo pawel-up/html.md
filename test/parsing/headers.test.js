@@ -62,5 +62,12 @@ describe('HtmlMd', () => {
       const result = factory.generate(input);
       assert.equal(result, ``);
     });
+
+    it('produces empty headers', () => {
+      const factory = new HtmlMd();
+      const input = `<h1></h1>`;
+      const result = factory.generate(input);
+      assert.equal(result, `# \n\n`);
+    });
   });
 });

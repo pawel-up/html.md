@@ -2,15 +2,15 @@ import { assert } from '@open-wc/testing';
 import HtmlMd from '../../index.js';
 
 describe('HtmlMd', () => {
-  describe('Parsing new lines (<br>)', () => {
+  describe('Parsing comments', () => {
     /** @type HtmlMd */
     let factory;
     before(() => { factory = new HtmlMd() });
 
-    it('adds new line tag between tags', () => {
-      const input = `<p>Test<br>Line</p>`;
+    it('produces a simple blockquote', () => {
+      const input = `<p>Test</p><!-- comment --><p>world</p>`;
       const result = factory.generate(input);
-      assert.equal(result, 'Test \nLine\n\n');
+      assert.equal(result, 'Test\n\n<!-- comment -->\n\nworld\n\n');
     });
   });
 });

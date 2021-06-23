@@ -47,15 +47,6 @@ export class MdGenerator {
     value = value.replace(/]([\s]*)\(/g, '\\]$1\\(');
     value = value.replace(/^ {0,3}\[([\S \t]*?)]:/gm, '\\[$1]:');
     return value;
-    // const { textContent } = node;
-    // const value = textContent.trim();
-    // if (!value) {
-    //   return '';
-    // }
-    // this.parts.push(value);
-    // return {
-    //   addedPart: true,
-    // };
   }
 
   /**
@@ -86,15 +77,16 @@ export class MdGenerator {
       }
       return data;
     }
-    if (['div', 'section', 'header'].includes(localName)) {
-      return this.processBlockElement(typedHtmlElement);
+    if (['section', 'header'].includes(localName)) {
+      let data = this.processBlockElement(typedHtmlElement);
+      if (data) {
+        data += '\n\n';
+      }
+      return data;
     }
     if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(localName)) {
       const data = this.processHeader(typedHtmlElement);
-      if (data) {
-        return `${data}\n\n`;
-      }
-      return data;
+      return `${data}\n\n`;
     }
     if (['ul', 'ol'].includes(localName)) {
       let data = this.processList(typedHtmlElement);
@@ -127,11 +119,8 @@ export class MdGenerator {
       return this.processEmphasis(typedHtmlElement);
     }
     if (localName === 'blockquote') {
-      let data = this.processBlockquote(typedHtmlElement);
-      if (data) {
-        data += '\n\n';
-      }
-      return data;
+      const data = this.processBlockquote(typedHtmlElement);
+      return `${data}\n\n`;
     }
     if (localName === 'del') {
       return this.processStrikeThrough(typedHtmlElement);
@@ -185,7 +174,7 @@ export class MdGenerator {
     if (node.hasChildNodes()) {
       const { childNodes } = node;
       const content = Array.from(childNodes).map(child => this.processNode(child)).filter(code => !!code);
-      result += content.join(' ');
+      result += content.join(' ').replace(/^ /gm, '');
       result = result.trim();
     }
     return result;
@@ -202,7 +191,7 @@ export class MdGenerator {
     if (node.hasChildNodes()) {
       const { childNodes } = node;
       const content = Array.from(childNodes).map(child => this.processNode(child));
-      result += content.join('');
+      result += content.join(' ').replace(/^ /gm, '');;
       result = result.trim();
     }
     return result;
@@ -482,7 +471,16 @@ export class MdGenerator {
             cells[col] = content.padEnd(columnsSize[col], '-');
           }
         } else {
-          cells[col] = content.padEnd(columnsSize[col]);
+          const alignment = tableModel[1][col];
+          if (!alignment.startsWith(':') && alignment.endsWith(':')) {
+            cells[col] = content.padStart(columnsSize[col]);
+          } else if (alignment.startsWith(':') && alignment.endsWith(':')) {
+            cells[col] = content
+              .padStart(content.length + Math.floor((columnsSize[col] - content.length) / 2))
+              .padEnd(columnsSize[col]);
+          } else {
+            cells[col] = content.padEnd(columnsSize[col]);
+          }
         }
       });
       parts.push(`| ${cells.join(' | ')} |`);
@@ -501,7 +499,7 @@ export class MdGenerator {
     }
     const { childNodes } = node;
     const parts = Array.from(childNodes).map(child => this.processNode(child)).filter(txt => !!txt).map(txt => txt.trim());
-    return parts.join('');
+    return parts.join(' ').replace(/ ([,.])/g, '$1');
   }
 
   /**
@@ -511,7 +509,7 @@ export class MdGenerator {
    */
   computeColumnSpace(tableModel) {
     const defaultSize = 3;
-    const cols = new Array(tableModel.length - 1).fill(defaultSize);
+    const cols = new Array(tableModel.length).fill(defaultSize);
     tableModel.forEach((cells) => {
       cells.forEach((content, col) => {
         const { length } = content;
