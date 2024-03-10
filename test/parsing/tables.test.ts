@@ -1,20 +1,18 @@
 import { assert } from '@open-wc/testing';
-import HtmlMd from '../../index.js';
+import HtmlMd from '../../src/index.js';
 
 describe('HtmlMd', () => {
   describe('Parsing tables', () => {
-    /** @type HtmlMd */
-    let factory;
+    let factory: HtmlMd;
     before(() => { factory = new HtmlMd() });
 
-    async function getTable(name) {
+    async function getTable(name: string) {
       const response = await fetch(`/test/parsing/tables/${name}.html`);
       return response.text();
     }
 
     describe('Basic tables', () => {
-      /** @type string */
-      let code;
+      let code: string;
       before(async () => {
         const input = await getTable('simple');
         code = factory.generate(input);
@@ -45,8 +43,7 @@ describe('HtmlMd', () => {
     });
 
     describe('Content alignment', () => {
-      /** @type string */
-      let code;
+      let code: string;
       before(async () => {
         const input = await getTable('alignment');
         code = factory.generate(input);
@@ -105,8 +102,7 @@ describe('HtmlMd', () => {
     });
 
     describe('Content formatting', () => {
-      /** @type string */
-      let code;
+      let code: string;
       before(async () => {
         const input = await getTable('formatting');
         code = factory.generate(input);
@@ -132,8 +128,7 @@ describe('HtmlMd', () => {
     });
 
     describe('Empty cells handing', () => {
-      /** @type string */
-      let code;
+      let code: string;
       before(async () => {
         const input = await getTable('empty-cells');
         code = factory.generate(input);

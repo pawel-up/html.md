@@ -1,12 +1,11 @@
 import { assert } from '@open-wc/testing';
-import HtmlMd from '../../index.js';
+import HtmlMd from '../../src/index.js';
 import { wrapElement } from './utils.js';
 
 describe('HtmlMd', () => {
   describe('Parsing lists', () => {
     describe('Unordered lists', () => {
-      /** @type HtmlMd */
-      let factory;
+      let factory: HtmlMd;
       before(() => { factory = new HtmlMd() });
 
       it('processes a simple list', () => {
@@ -82,8 +81,7 @@ describe('HtmlMd', () => {
     });
 
     describe('Ordered lists', () => {
-      /** @type HtmlMd */
-      let factory;
+      let factory: HtmlMd;
       before(() => { factory = new HtmlMd() });
 
       it('processes a simple list', () => {
@@ -129,8 +127,7 @@ describe('HtmlMd', () => {
     });
 
     describe('Mixed lists', () => {
-      /** @type HtmlMd */
-      let factory;
+      let factory: HtmlMd;
       before(() => { factory = new HtmlMd() });
 
       it('produces different lists', () => {

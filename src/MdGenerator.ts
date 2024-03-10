@@ -1,14 +1,11 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
 import { clean } from './Utils.js';
 
 export class MdGenerator {
   /**
    * Generates a markdown content from an Element.
-   * @param {Element} root 
-   * @returns {string} The generated markdown.
+   * @returns The generated markdown.
    */
-  generate(root) {
+  generate(root: Element): string {
     clean(root);
     const { childNodes } = root;
     const txt = Array.from(childNodes).map(node => this.processNode(node));
@@ -17,26 +14,25 @@ export class MdGenerator {
 
   /**
    * Processes a single node.
-   * @param {ChildNode} node
-   * @returns {string} The generated code for the node.
+   * @returns The generated code for the node.
    */
-  processNode(node) {
+  processNode(node: ChildNode): string {
     switch (node.nodeType) {
-      case Node.TEXT_NODE: return this.processTextNode(/** @type Text */ (node));
-      case Node.COMMENT_NODE: return this.processCommentNode(/** @type Comment */ (node));
-      case Node.ELEMENT_NODE: return this.processElementNode(/** @type Element */ (node));
-      default: // console.log(node);
+      case Node.TEXT_NODE: return this.processTextNode(node as Text);
+      case Node.COMMENT_NODE: return this.processCommentNode(node as Comment);
+      case Node.ELEMENT_NODE: return this.processElementNode(node as Element);
+      default: return ''
     }
-    return '';
   }
 
   /**
    * Process a text node and returns the markup.
-   * @param {Text} node
-   * @returns {string}
    */
-  processTextNode(node) {
+  processTextNode(node: Text): string {
     let value = node.nodeValue;
+    if (!value) {
+      return '';
+    }
     value = value.replace(/ +/g, ' ');
     value = value.replace(/([*_~|`])/g, '\\$1');
     value = value.replace(/^(\s*)>/g, '\\$1>');
@@ -51,25 +47,21 @@ export class MdGenerator {
 
   /**
    * Process a comment node and returns the markup.
-   * @param {Comment} node
-   * @returns {string}
    */
-  processCommentNode(node) {
+  processCommentNode(node: Comment): string {
     return `<!--${node.data}-->\n\n`;
   }
 
   /**
    * Processes an node that is an element.
-   * @param {Element} node 
-   * @returns {string}
    */
-  processElementNode(node) {
+  processElementNode(node: Element): string {
     const { localName } = node;
     if (['script', 'link', 'head', 'body', 'html', 'meta', 'title', 'style'].includes(localName)) {
       // we don't like them. And their children.
       return '';
     }
-    const typedHtmlElement = /** @type HTMLElement */ (node);
+    const typedHtmlElement = node as HTMLElement;
     if (['div', 'p'].includes(localName)) {
       const data = this.processParagraph(typedHtmlElement);
       if (data) {
@@ -106,7 +98,7 @@ export class MdGenerator {
       return data;
     }
     if (localName === 'a') {
-      return this.processAnchor(/** @type HTMLAnchorElement */ (node));
+      return this.processAnchor(node as HTMLAnchorElement);
     }
     if (localName === 'hr') {
       const data = this.processHorizontalLine();
@@ -126,7 +118,7 @@ export class MdGenerator {
       return this.processStrikeThrough(typedHtmlElement);
     }
     if (localName === 'img') {
-      return this.processImage(/** @type HTMLImageElement */ (node));
+      return this.processImage(node as HTMLImageElement);
     }
     if (localName === 'br') {
       return this.processNewLine();
@@ -145,10 +137,8 @@ export class MdGenerator {
   /**
    * Processes H1-h6 elements.
    * Note, this does not add new lines after the header content.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processHeader(node) {
+  processHeader(node: HTMLElement): string {
     const cnt = Number(node.localName.replace('h', ''));
     if (Number.isNaN(cnt)) {
       return '';
@@ -166,10 +156,8 @@ export class MdGenerator {
   /**
    * Processes the paragraph element and returns the markup.
    * Note, this does not add new lines after the paragraph content.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processParagraph(node) {
+  processParagraph(node: HTMLElement): string {
     let result = '';
     if (node.hasChildNodes()) {
       const { childNodes } = node;
@@ -183,10 +171,8 @@ export class MdGenerator {
   /**
    * Processes a block elements without any sematic meaning (from markdown pov) like headers, sections, etc.
    * Note, this does not add new lines after the paragraph content.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processBlockElement(node) {
+  processBlockElement(node: HTMLElement): string {
     let result = '';
     if (node.hasChildNodes()) {
       const { childNodes } = node;
@@ -199,16 +185,12 @@ export class MdGenerator {
 
   /**
    * Processes a <code> block.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processCodeBlock(node) {
+  processCodeBlock(node: HTMLElement): string {
     let isBlock = false;
-    /** @type HTMLElement */
-    let block;
+    let block: HTMLElement | undefined;
     if (node.localName === 'pre' && node.children[0] && node.children[0].localName === 'code') {
-      // eslint-disable-next-line prefer-destructuring
-      block = /** @type HTMLElement */ (node.children[0]);
+      block = node.children[0] as HTMLElement;
       isBlock = true;
     } else if (node.localName === 'code') {
       block = node;
@@ -218,7 +200,7 @@ export class MdGenerator {
     }
     const marker = isBlock ? '```' : '`';
     const blockNl = isBlock ? '\n' : '';
-    let code = block.textContent;
+    let code = block.textContent || '';
     if (isBlock && !code.endsWith('\n')) {
       code += blockNl;
     }
@@ -227,10 +209,8 @@ export class MdGenerator {
 
   /**
    * Processes the `<a>` element.
-   * @param {HTMLAnchorElement} node 
-   * @returns {string}
    */
-  processAnchor(node) {
+  processAnchor(node: HTMLAnchorElement): string {
     const { href, childNodes } = node;
     if (!href && node.hasChildNodes()) {
       // named anchors (<a name="">) count as regular stuff (?)
@@ -250,10 +230,8 @@ export class MdGenerator {
 
   /**
    * Processes the `<ul>` and `ol` elements.
-   * @param {HTMLElement} node
-   * @returns {string}
    */
-  processList(node) {
+  processList(node: HTMLElement): string {
     let result = '';
     if (!node.hasChildNodes()) {
       return result;
@@ -262,13 +240,13 @@ export class MdGenerator {
     const isOrdered = localName === 'ol';
     const markerType = isOrdered ? '1. ' : '- ';
     const parts = Array.from(childNodes).map((child) => {
-      const name = /** @type Element */ (child).localName;
+      const name = (child as Element).localName;
       if (!name || name !== 'li') {
         // we ignore everything that is not a list item.
         // Sub-lists are children of a list item.
         return '';
       }
-      let data = this.processListItem(/** @type HTMLElement */ (child));
+      let data = this.processListItem(child as HTMLElement);
       if (data) {
         data = `${markerType}${data}`;
       }
@@ -280,20 +258,18 @@ export class MdGenerator {
 
   /**
    * Specializes in processing list items.
-   * @param {HTMLElement} node
-   * @returns {string}
    */
-  processListItem(node) {
+  processListItem(node: HTMLElement): string {
     let result = '';
     if (!node.hasChildNodes()) {
       return result;
     }
     const { childNodes } = node;
     Array.from(childNodes).forEach((child) => {
-      const elm = /** @type HTMLInputElement */ (child);
-      if (elm.localName === 'input' && elm.type === 'checkbox') {
-        result += `[${elm.checked ? 'x' : ' '}] `;
-      } else if (['ul', 'ol'].includes(elm.localName)) {
+      const typedInput = child as HTMLInputElement;
+      if (typedInput.localName === 'input' && typedInput.type === 'checkbox') {
+        result += `[${typedInput.checked ? 'x' : ' '}] `;
+      } else if (['ul', 'ol'].includes(typedInput.localName)) {
         const data = this.processNode(child);
         if (data) {
           result += `\n${data}`
@@ -313,19 +289,15 @@ export class MdGenerator {
   
   /**
    * Specializes in processing `<code>` that is not inside the `<pre>`.
-   * @param {HTMLElement} node
-   * @returns {string}
    */
-  processInlineCode(node) {
+  processInlineCode(node: HTMLElement): string {
     return `\`${node.innerHTML}\``;
   }
 
   /**
    * Processes the `<em>` element.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processEmphasis(node) {
+  processEmphasis(node: HTMLElement): string {
     if (!node.hasChildNodes()) {
       return '';
     }
@@ -337,10 +309,8 @@ export class MdGenerator {
 
   /**
    * Processes a `<b>` or `<strong>` block.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processBold(node) {
+  processBold(node: HTMLElement): string {
     if (!node.hasChildNodes()) {
       return '';
     }
@@ -352,18 +322,15 @@ export class MdGenerator {
 
   /**
    * Processes a horizontal line element.
-   * @returns string
    */
-  processHorizontalLine() {
+  processHorizontalLine(): string {
     return `---`;
   }
 
   /**
    * Processes a `<blockquote>` element.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processBlockquote(node) {
+  processBlockquote(node: HTMLElement): string {
     const prefix = '> ';
     if (!node.hasChildNodes()) {
       // nothing much to do here. however, editors may want to visualize this anyway.
@@ -376,10 +343,8 @@ export class MdGenerator {
 
   /**
    * Processes a `<del>` element.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processStrikeThrough(node) {
+  processStrikeThrough(node: HTMLElement): string {
     if (!node.hasChildNodes()) {
       return '';
     }
@@ -391,10 +356,8 @@ export class MdGenerator {
 
   /**
    * Processes an `<img>` element.
-   * @param {HTMLImageElement} node 
-   * @returns {string}
    */
-  processImage(node) {
+  processImage(node: HTMLImageElement): string {
     const { src, alt, width, height, title } = node;
     if (!src) {
       return '';
@@ -415,23 +378,19 @@ export class MdGenerator {
 
   /**
    * Processes the `<br/>` element.
-   * @returns {string}
    */
-  processNewLine() {
+  processNewLine(): string {
     return '\n';
   }
 
   /**
    * Processes a `<table>` element.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processTable(node) {
-    const headings = /** @type HTMLElement[] */ (Array.from(node.querySelectorAll('thead > tr > th')));
-    const rows = /** @type HTMLElement[] */ (Array.from(node.querySelectorAll('tbody > tr')));
+  processTable(node: HTMLElement): string {
+    const headings = Array.from(node.querySelectorAll('thead > tr > th')) as HTMLElement[];
+    const rows = Array.from(node.querySelectorAll('tbody > tr')) as HTMLElement[];
 
-    /** @type string[][] */
-    const tableModel = [[], []];
+    const tableModel: string[][] = [[], []];
     headings.forEach((child, i) => {
       let cellAlign = '---';
       const content = this.processTableCell(child);
@@ -458,7 +417,7 @@ export class MdGenerator {
     });
 
     const columnsSize = this.computeColumnSpace(tableModel);
-    const parts = [];
+    const parts: string[] = [];
     tableModel.forEach((cells, row) => {
       cells.forEach((content, col) => {
         if (row === 1) {
@@ -490,10 +449,8 @@ export class MdGenerator {
 
   /**
    * Processes a table cell.
-   * @param {HTMLElement} node 
-   * @returns {string}
    */
-  processTableCell(node) {
+  processTableCell(node: HTMLElement): string {
     if (!node.hasChildNodes()) {
       return '';
     }
@@ -504,10 +461,8 @@ export class MdGenerator {
 
   /**
    * Computes the size of each column in the table.
-   * @param {string[][]} tableModel 
-   * @returns {number[]}
    */
-  computeColumnSpace(tableModel) {
+  computeColumnSpace(tableModel: string[][]): number[] {
     const defaultSize = 3;
     const cols = new Array(tableModel.length).fill(defaultSize);
     tableModel.forEach((cells) => {

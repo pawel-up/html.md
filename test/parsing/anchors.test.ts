@@ -1,10 +1,9 @@
 import { assert } from '@open-wc/testing';
-import HtmlMd from '../../index.js';
+import HtmlMd from '../../src/index.js';
 
 describe('HtmlMd', () => {
   describe('Parsing anchors', () => {
-    /** @type HtmlMd */
-    let factory;
+    let factory: HtmlMd;
     before(() => { factory = new HtmlMd() });
 
     const href = 'https://domain.com';

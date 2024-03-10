@@ -1,10 +1,9 @@
 import { assert } from '@open-wc/testing';
-import HtmlMd from '../../index.js';
+import HtmlMd from '../../src/index.js';
 
 describe('HtmlMd', () => {
   describe('Ignored tags', () => {
-    /** @type HtmlMd */
-    let factory;
+    let factory: HtmlMd;
     before(() => { factory = new HtmlMd() });
 
     it('ignores the <script> tag', () => {

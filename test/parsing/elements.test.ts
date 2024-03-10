@@ -1,23 +1,20 @@
 import { assert } from '@open-wc/testing';
-import HtmlMd from '../../index.js';
+import HtmlMd from '../../src/index.js';
 
 describe('HtmlMd', () => {
   describe('Parsing html elements', () => {
-    /** @type HtmlMd */
-    let factory;
+    let factory: HtmlMd;
     before(() => { factory = new HtmlMd() });
 
-    /** @type Element[] */
-    let children = [];
+    let children: Element[] = [];
 
-    /** @param {Element} element */
-    function add(element) {
+    function add(element: Element): void {
       children.push(element);
       document.body.appendChild(element);
     }
 
-    function clear() {
-      children.forEach(elm => elm.parentNode.removeChild(elm))
+    function clear(): void {
+      children.forEach(elm => elm.parentNode!.removeChild(elm))
       children = [];
     }
 

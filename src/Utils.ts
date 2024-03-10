@@ -1,18 +1,21 @@
 /* eslint-disable no-plusplus */
 /**
  * Cleans the white spaces.
- * @param {Node} node
  */
-export function clean(node) {
+export function clean(node: Element) {
   for (let n = 0; n < node.childNodes.length; ++n) {
-    const child = /** @type HTMLElement */ (node.childNodes[n]);
+    const child = node.childNodes[n] as HTMLElement;
     if (child.nodeType === Node.TEXT_NODE) {
-      if (!/\S/.test(child.nodeValue)) {
+      let value = child.nodeValue;
+      if (!value) {
+        continue;``
+      }
+      if (!/\S/.test(value)) {
         node.removeChild(child);
         --n;
       } else {
-        child.nodeValue = child.nodeValue.split('\n').join(' ');
-        child.nodeValue = child.nodeValue.replace(/(\s)+/g, '$1');
+        value = value.split('\n').join(' ');
+        child.nodeValue = value.replace(/(\s)+/g, '$1');
       }
     } else if (child.nodeType === Node.ELEMENT_NODE && !['code', 'pre'].includes(child.localName)) {
       clean(child);

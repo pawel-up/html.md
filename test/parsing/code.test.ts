@@ -1,11 +1,10 @@
 import { assert } from '@open-wc/testing';
-import HtmlMd from '../../index.js';
+import HtmlMd from '../../src/index.js';
 
 describe('HtmlMd', () => {
   describe('Code blocks', () => {
     describe('Inline code', () => {
-      /** @type HtmlMd */
-      let factory;
+      let factory: HtmlMd;
       before(() => { factory = new HtmlMd() });
 
       it('adds the inline code markers', () => {
@@ -16,8 +15,7 @@ describe('HtmlMd', () => {
     });
 
     describe('Code blocks', () => {
-      /** @type HtmlMd */
-      let factory;
+      let factory: HtmlMd;
       before(() => { factory = new HtmlMd() });
 
       it('processes single code clock', () => {

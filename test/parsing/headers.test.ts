@@ -1,5 +1,5 @@
 import { assert } from '@open-wc/testing';
-import HtmlMd from '../../index.js';
+import HtmlMd from '../../src/index.js';
 import { wrapElement } from './utils.js';
 
 describe('HtmlMd', () => {

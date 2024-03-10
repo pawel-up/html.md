@@ -1,8 +1,8 @@
 # HTML.md
 
-No-dependency, ESM ready, in browser HTML to markdown converter.
+No-dependency, ESM based, in browser HTML to markdown converter.
 
-A library that takes an HTML string or an Element reference and translates it to MarkDown code.
+A library that takes an HTML string or a reference to an Element and translates it to a Markdown code.
 
 Note, this library works in a **browser** environment only. This won't work in `Node.js`.
 

@@ -1,11 +1,10 @@
 import { assert } from '@open-wc/testing';
-import HtmlMd from '../../index.js';
+import HtmlMd from '../../src/index.js';
 import { wrapElement } from './utils.js';
 
 describe('HtmlMd', () => {
   describe('Parsing images', () => {
-    /** @type HtmlMd */
-    let factory;
+    let factory: HtmlMd;
     before(() => { factory = new HtmlMd() });
 
     const imgUrl = 'https://cats.com/';
