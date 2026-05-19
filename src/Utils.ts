@@ -9,7 +9,6 @@ export function clean(node: Element) {
       let value = child.nodeValue
       if (!value) {
         continue
-        ;``
       }
       if (!/\S/.test(value)) {
         node.removeChild(child)
