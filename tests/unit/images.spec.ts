@@ -70,6 +70,6 @@ test.group('HtmlMd / Parsing images', (group) => {
     img.setAttribute('height', height)
     img.setAttribute('title', title)
     const result = factory.generate(wrapElement(img))
-    assert.match(result, /!\[This is an image\]\(<https?:\/\/[^>]+\/test\/parsing\/dummy\.png> =100x200 "A title"\)/)
+    assert.match(result, /!\[This is an image\]\(<https?:\/\/[^>]+\/tests\/unit\/dummy\.png> =100x200 "A title"\)/)
   })
 })
