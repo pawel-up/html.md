@@ -6,8 +6,8 @@ import noOnlyTests from 'eslint-plugin-no-only-tests'
 import { includeIgnoreFile } from '@eslint/compat'
 import { fileURLToPath } from 'node:url'
 
-const gitignorePath = fileURLToPath(new URL(".gitignore", import.meta.url));
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 /**
  * List of files that must be ignored globally
