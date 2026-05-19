@@ -34,7 +34,7 @@
     "lint": "npm run lint:prettier && npm run lint:eslint",
     "lint:eslint": "eslint --color --cache --cache-location .eslintcache .",
     "lint:prettier": "prettier \"**/*.ts\" --check",
-    "format": "npm run format:prettier && npm run format:prettier",
+    "format": "npm run format:prettier && npm run format:eslint",
     "format:prettier": "prettier \"**/*.ts\" --write",
     "format:eslint": "eslint --color --cache --fix --cache-location .eslintcache .",
     "test": "npx lupa test",
