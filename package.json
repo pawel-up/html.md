@@ -3,68 +3,77 @@
   "version": "0.2.1",
   "description": "No-dependency, ESM, in browser HTML to markdown converter",
   "license": "CC-BY-4.0",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "build/index.js",
+  "module": "build/index.js",
+  "types": "build/index.d.ts",
   "type": "module",
   "keywords": [
     "markdown",
     "html"
   ],
   "author": {
-    "name": "Pawel Uchida-Psztyc",
-    "email": "pawel.psztyc@gmail.com"
+    "name": "Pawel Uchida-Psztyc"
   },
   "contributors": [
     "Your name can be here!"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/jarrodek/html.md.git"
+    "url": "git://github.com/pawel-up/html.md.git"
   },
   "bugs": {
-    "url": "https://github.com/jarrodek/html.md/issues",
-    "email": "pawel.psztyc@gmail.com"
+    "url": "https://github.com/pawel-up/html.md/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
-    "start": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wds\"",
-    "build": "tsc",
+    "docs": "typedoc",
+    "build": "tsc --build tsconfig.build.json --pretty",
     "prepublish": "tsc",
-    "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
-    "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore",
-    "test": "tsc && wtr --coverage --playwright --browsers chromium firefox webkit",
-    "test:watch": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wtr --watch --playwright --browsers chromium\"",
-    "prepare": "husky && npx playwright install",
-    "tsc:watch": "tsc --watch",
-    "tsc": "tsc"
+    "lint": "npm run lint:prettier && npm run lint:eslint",
+    "lint:eslint": "eslint --color --cache --cache-location .eslintcache .",
+    "lint:prettier": "prettier \"**/*.ts\" --check",
+    "format": "npm run format:prettier && npm run format:prettier",
+    "format:prettier": "prettier \"**/*.ts\" --write",
+    "format:eslint": "eslint --color --cache --fix --cache-location .eslintcache .",
+    "test": "npx lupa test",
+    "test:watch": "npx lupa test --watch",
+    "test:coverage": "npx lupa test --coverage",
+    "prepare": "husky",
+    "dev": "wds --watch --config web-dev-server.config.js",
+    "tsc:all": "tsc --project tsconfig.json"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.0.3",
-    "@commitlint/config-conventional": "^19.0.3",
-    "@open-wc/eslint-config": "^12.0.3",
-    "@open-wc/testing": "^4.0.0",
-    "@types/mocha": "^10.0.6",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "@commitlint/types": "^21.0.1",
+    "@eslint/compat": "^2.0.3",
+    "@eslint/js": "^10.0.1",
+    "@pawel-up/lupa": "^0.2.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@to-skills/typedoc": "^1.0.9",
     "@web/dev-server": "^0.4.3",
     "@web/dev-server-esbuild": "^1.0.2",
-    "@web/test-runner": "^0.18.1",
-    "@web/test-runner-playwright": "^0.11.0",
-    "concurrently": "^8.2.2",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-deprecation": "^2.0.0",
-    "eslint-plugin-lit-a11y": "^4.1.2",
-    "eslint-plugin-no-only-tests": "^3.1.0",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.2",
-    "lit": "^3.1.2",
-    "sinon": "^17.0.1",
+    "concurrently": "^9.2.1",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-no-only-tests": "^3.3.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
+    "lit": "^3.3.3",
+    "prettier": "^3.8.1",
+    "semantic-release": "^25.0.3",
+    "sinon": "^22.0.0",
     "tslib": "^2.6.2",
-    "typescript": "^5.4.2"
+    "tsx": "^4.22.0",
+    "typedoc": "^0.28.19",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.56.1"
   },
-  "customElements": "custom-elements.json",
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -76,6 +85,9 @@
     ],
     "*.ts": [
       "eslint --fix"
+    ],
+    "*.json": [
+      "prettier --write"
     ]
   }
 }
