@@ -1,1 +1,1 @@
-export { HtmlMd as default } from './HtmlMd.js';
+export { HtmlMd as default } from './HtmlMd.js'

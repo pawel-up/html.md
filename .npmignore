@@ -11,6 +11,6 @@ coverage/
 demo/
 docs/
 src/
-test/
+tests/
 .eslintrc
 .gitignore
