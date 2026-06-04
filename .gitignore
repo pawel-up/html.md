@@ -57,6 +57,5 @@ $RECYCLE.BIN/
 node_modules
 coverage
 dist/
-.husky/
 build/
 .idx/
