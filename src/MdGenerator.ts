@@ -1,6 +1,17 @@
 import { clean } from './Utils.js'
+import type { HtmlMdOptions } from './HtmlMdOptions.js'
 
 export class MdGenerator {
+  private options: HtmlMdOptions
+
+  constructor(options: HtmlMdOptions = {}) {
+    this.options = {
+      flavor: 'gfm',
+      keepHtml: false,
+      ...options,
+    }
+  }
+
   /**
    * Generates a markdown content from an Element.
    * @returns The generated markdown.
@@ -30,6 +41,84 @@ export class MdGenerator {
   }
 
   /**
+   * Helper to check if a node is at the start of a markdown line.
+   */
+  isAtStartOfLine(node: ChildNode): boolean {
+    let current: ChildNode | null = node
+    while (current) {
+      const prev: ChildNode | null = current.previousSibling
+      if (prev) {
+        if (prev.nodeType === Node.TEXT_NODE) {
+          const val = prev.nodeValue || ''
+          if (val.trim() === '') {
+            current = prev
+            continue
+          }
+          return false
+        }
+        if (prev.nodeName.toLowerCase() === 'br') {
+          return true
+        }
+        const blockTags = [
+          'div',
+          'p',
+          'h1',
+          'h2',
+          'h3',
+          'h4',
+          'h5',
+          'h6',
+          'li',
+          'ul',
+          'ol',
+          'pre',
+          'blockquote',
+          'table',
+          'tr',
+          'td',
+          'th',
+          'hr',
+        ]
+        if (blockTags.includes(prev.nodeName.toLowerCase())) {
+          return true
+        }
+        return false
+      }
+
+      const parent: ParentNode | null = current.parentNode
+      if (!parent) {
+        return true
+      }
+      const blockTags = [
+        'div',
+        'p',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'li',
+        'ul',
+        'ol',
+        'pre',
+        'blockquote',
+        'table',
+        'tr',
+        'td',
+        'th',
+        'hr',
+        'body',
+      ]
+      if (blockTags.includes(parent.nodeName.toLowerCase())) {
+        return true
+      }
+      current = parent as unknown as ChildNode
+    }
+    return true
+  }
+
+  /**
    * Process a text node and returns the markup.
    */
   processTextNode(node: Text): string {
@@ -39,13 +128,23 @@ export class MdGenerator {
     }
     value = value.replace(/ +/g, ' ')
     value = value.replace(/([*_~|`])/g, '\\$1')
-    value = value.replace(/^(\s*)>/g, '\\$1>')
-    value = value.replace(/^#/gm, '\\#')
-    value = value.replace(/^(\s*)([-=]{3,})(\s*)$/, '$1\\$2$3')
-    value = value.replace(/^( {0,3}\d+)\./gm, '$1\\.')
-    value = value.replace(/^( {0,3})([+-])/gm, '$1\\$2')
     value = value.replace(/]([\s]*)\(/g, '\\]$1\\(')
-    value = value.replace(/^ {0,3}\[([\S \t]*?)]:/gm, '\\[$1]:')
+
+    const isStart = this.isAtStartOfLine(node)
+    if (isStart) {
+      value = value.replace(/^(\s*)>/g, '\\$1>')
+      value = value.replace(/^#/gm, '\\#')
+      value = value.replace(/^(\s*)([-=]{3,})(\s*)$/, '$1\\$2$3')
+      value = value.replace(/^( {0,3}\d+)\./gm, '$1\\.')
+      value = value.replace(/^( {0,3})([+-])/gm, '$1\\$2')
+      value = value.replace(/^ {0,3}\[([\S \t]*?)]:/gm, '\\[$1]:')
+    } else {
+      value = value.replace(/\n#/g, '\n\\#')
+      value = value.replace(/\n( {0,3}\d+)\./g, '\n$1\\.')
+      value = value.replace(/\n( {0,3})([+-])/g, '\n$1\\$2')
+      value = value.replace(/\n {0,3}\[([\S \t]*?)]:/g, '\n\\[$1]:')
+    }
+
     return value
   }
 
@@ -61,11 +160,21 @@ export class MdGenerator {
    */
   processElementNode(node: Element): string {
     const { localName } = node
-    if (['script', 'link', 'head', 'body', 'html', 'meta', 'title', 'style'].includes(localName)) {
+    if (
+      ['script', 'link', 'head', 'body', 'html', 'meta', 'title', 'style', 'h7', 'h8', 'h9', 'button'].includes(
+        localName
+      )
+    ) {
       // we don't like them. And their children.
       return ''
     }
     const typedHtmlElement = node as HTMLElement
+
+    // 1. Custom Rules check first
+    if (this.options.rules && localName in this.options.rules) {
+      return this.options.rules[localName](typedHtmlElement)
+    }
+
     if (['div', 'p'].includes(localName)) {
       const data = this.processParagraph(typedHtmlElement)
       if (data) {
@@ -128,14 +237,50 @@ export class MdGenerator {
       return this.processNewLine()
     }
     if (localName === 'table') {
-      let data = this.processTable(typedHtmlElement)
-      if (data) {
-        data += '\n\n'
+      if (this.options.flavor !== 'commonmark' && this.options.flavor !== 'slack') {
+        let data = this.processTable(typedHtmlElement)
+        if (data) {
+          data += '\n\n'
+        }
+        return data
       }
-      return data
     }
-    // console.log('Unhandled element', localName, node);
-    return ''
+    if (localName === 'span') {
+      let content = ''
+      if (node.hasChildNodes()) {
+        content = Array.from(node.childNodes)
+          .map((child) => this.processNode(child))
+          .join('')
+      }
+      return this.applyStyles(typedHtmlElement, content)
+    }
+    if (localName === 'figure') {
+      const img = typedHtmlElement.querySelector('img')
+      const figcaption = typedHtmlElement.querySelector('figcaption')
+      if (img) {
+        let markdown = this.processImage(img as HTMLImageElement)
+        if (figcaption) {
+          const captionText = figcaption.textContent || ''
+          if (captionText) {
+            markdown += `\n*${captionText.trim()}*`
+          }
+        }
+        return `${markdown}\n\n`
+      }
+    }
+
+    if (this.options.keepHtml) {
+      return node.outerHTML
+    }
+
+    // fallback style parsing
+    let content = ''
+    if (node.hasChildNodes()) {
+      content = Array.from(node.childNodes)
+        .map((child) => this.processNode(child))
+        .join('')
+    }
+    return this.applyStyles(typedHtmlElement, content)
   }
 
   /**
@@ -143,18 +288,27 @@ export class MdGenerator {
    * Note, this does not add new lines after the header content.
    */
   processHeader(node: HTMLElement): string {
+    if (this.options.flavor === 'slack') {
+      let result = ''
+      if (node.hasChildNodes()) {
+        const { childNodes } = node
+        const content = Array.from(childNodes).map((child) => this.processNode(child))
+        result += content.join('').trim()
+      }
+      return `*${result}*`
+    }
     const cnt = Number(node.localName.replace('h', ''))
     if (Number.isNaN(cnt)) {
       return ''
     }
     const keyword = new Array(cnt).fill('#').join('')
-    let result = `${keyword} `
+    let headerText = ''
     if (node.hasChildNodes()) {
       const { childNodes } = node
       const content = Array.from(childNodes).map((child) => this.processNode(child))
-      result += content.join('')
+      headerText = content.join('').trim()
     }
-    return result
+    return `${keyword} ${headerText}`
   }
 
   /**
@@ -168,7 +322,7 @@ export class MdGenerator {
       const content = Array.from(childNodes)
         .map((child) => this.processNode(child))
         .filter((code) => !!code)
-      result += content.join(' ').replace(/^ /gm, '')
+      result += content.join('')
       result = result.trim()
     }
     return result
@@ -183,7 +337,7 @@ export class MdGenerator {
     if (node.hasChildNodes()) {
       const { childNodes } = node
       const content = Array.from(childNodes).map((child) => this.processNode(child))
-      result += content.join(' ').replace(/^ /gm, '')
+      result += content.join('')
       result = result.trim()
     }
     return result
@@ -210,7 +364,15 @@ export class MdGenerator {
     if (isBlock && !code.endsWith('\n')) {
       code += blockNl
     }
-    return `${marker}${blockNl}${code}${marker}`
+    let lang = ''
+    if (isBlock) {
+      const classAttr = `${node.getAttribute('class') || ''} ${block.getAttribute('class') || ''}`
+      const match = classAttr.match(/(?:^|\s)(?:language|lang)-(\S+)/)
+      if (match) {
+        lang = match[1]
+      }
+    }
+    return `${marker}${lang}${blockNl}${code}${marker}`
   }
 
   /**
@@ -244,7 +406,7 @@ export class MdGenerator {
     }
     const { childNodes, localName } = node
     const isOrdered = localName === 'ol'
-    const markerType = isOrdered ? '1. ' : '- '
+    const markerType = isOrdered ? '1. ' : this.options.flavor === 'slack' ? '• ' : '- '
     const parts = Array.from(childNodes).map((child) => {
       const name = (child as Element).localName
       if (!name || name !== 'li') {
@@ -271,17 +433,28 @@ export class MdGenerator {
       return result
     }
     const { childNodes } = node
+    let isFirstText = true
     Array.from(childNodes).forEach((child) => {
       const typedInput = child as HTMLInputElement
       if (typedInput.localName === 'input' && typedInput.type === 'checkbox') {
-        result += `[${typedInput.checked ? 'x' : ' '}] `
+        if (this.options.flavor !== 'commonmark' && this.options.flavor !== 'slack') {
+          result += `[${typedInput.checked ? 'x' : ' '}] `
+          isFirstText = false
+        }
       } else if (['ul', 'ol'].includes(typedInput.localName)) {
         const data = this.processNode(child)
         if (data) {
           result += `\n${data}`
         }
       } else {
-        result += this.processNode(child)
+        let childText = this.processNode(child)
+        if (isFirstText) {
+          childText = childText.replace(/^\s+/, '')
+          if (childText) {
+            isFirstText = false
+          }
+        }
+        result += childText
       }
     })
     if (!/\n$/.test(result)) {
@@ -312,7 +485,7 @@ export class MdGenerator {
       return ''
     }
     const { childNodes } = node
-    const marker = '*'
+    const marker = this.options.flavor === 'slack' ? '_' : '*'
     const parts = Array.from(childNodes).map((child) => this.processNode(child))
     return `${marker}${parts.join('')}${marker}`
   }
@@ -325,7 +498,7 @@ export class MdGenerator {
       return ''
     }
     const { childNodes } = node
-    const marker = '**'
+    const marker = this.options.flavor === 'slack' ? '*' : '**'
     const parts = Array.from(childNodes).map((child) => this.processNode(child))
     return `${marker}${parts.join('')}${marker}`
   }
@@ -361,12 +534,16 @@ export class MdGenerator {
     if (!node.hasChildNodes()) {
       return ''
     }
-    const prefix = '~~'
     const { childNodes } = node
     const parts = Array.from(childNodes)
       .map((child) => this.processNode(child))
       .filter((txt) => !!txt)
       .map((txt) => txt.trim())
+
+    if (this.options.flavor === 'commonmark') {
+      return parts.join(' ')
+    }
+    const prefix = this.options.flavor === 'slack' ? '~' : '~~'
     return `${prefix}${parts.join(' ')}${prefix}`
   }
 
@@ -499,5 +676,54 @@ export class MdGenerator {
       })
     })
     return cols
+  }
+
+  /**
+   * Parses inline CSS style attribute into a key-value record.
+   */
+  parseStyles(node: HTMLElement): Record<string, string> {
+    const styleAttr = node.getAttribute('style') || ''
+    const styles: Record<string, string> = {}
+    styleAttr.split(';').forEach((pair) => {
+      const parts = pair.split(':')
+      if (parts.length >= 2) {
+        const key = parts[0].trim().toLowerCase()
+        const value = parts.slice(1).join(':').trim().toLowerCase()
+        styles[key] = value
+      }
+    })
+    return styles
+  }
+
+  /**
+   * Wraps the processed element content in markdown syntax based on CSS inline styles.
+   */
+  applyStyles(node: HTMLElement, content: string): string {
+    const styles = this.parseStyles(node)
+    let result = content
+
+    const isBold = styles['font-weight'] === 'bold' || parseInt(styles['font-weight'], 10) >= 600
+    const isItalic = styles['font-style'] === 'italic' || styles['font-style'] === 'oblique'
+    const isStrike =
+      styles['text-decoration'] === 'line-through' ||
+      styles['text-decoration-line'] === 'line-through' ||
+      (styles['text-decoration'] && styles['text-decoration'].includes('line-through'))
+
+    if (isBold) {
+      const prefix = this.options.flavor === 'slack' ? '*' : '**'
+      result = `${prefix}${result}${prefix}`
+    }
+    if (isItalic) {
+      const prefix = this.options.flavor === 'slack' ? '_' : '*'
+      result = `${prefix}${result}${prefix}`
+    }
+    if (isStrike) {
+      if (this.options.flavor === 'slack') {
+        result = `~${result}~`
+      } else if (this.options.flavor !== 'commonmark') {
+        result = `~~${result}~~`
+      }
+    }
+    return result
   }
 }

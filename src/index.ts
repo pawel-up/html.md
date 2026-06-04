@@ -1,1 +1,2 @@
-export { HtmlMd as default } from './HtmlMd.js'
+export { HtmlMd as default, HtmlMd } from './HtmlMd.js'
+export type { HtmlMdOptions } from './HtmlMdOptions.js'

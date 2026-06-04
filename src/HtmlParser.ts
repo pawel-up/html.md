@@ -1,14 +1,13 @@
 /**
  * Parses the HTML input string to an element.
  */
+const parser = new DOMParser()
+
 export default function parse(input: string): Element {
-  const parser = new DOMParser()
-  const id = `parsed${Math.random().toFixed(8).slice(2)}`
-  const parsable = `<div id="${id}">${input}</div>`
-  const doc = parser.parseFromString(parsable, 'text/html')
-  const result = doc.getElementById(id)
-  if (!result) {
-    throw new Error(`Element ${id} not found`)
+  const doc = parser.parseFromString(input, 'text/html')
+  const wrapper = doc.createElement('div')
+  while (doc.body.firstChild) {
+    wrapper.appendChild(doc.body.firstChild)
   }
-  return result
+  return wrapper
 }

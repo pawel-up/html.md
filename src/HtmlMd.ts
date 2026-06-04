@@ -1,7 +1,18 @@
 import htmlParser from './HtmlParser.js'
 import { MdGenerator } from './MdGenerator.js'
+import type { HtmlMdOptions } from './HtmlMdOptions.js'
 
 export class HtmlMd {
+  #options: HtmlMdOptions
+
+  constructor(options: HtmlMdOptions = {}) {
+    this.#options = {
+      flavor: 'gfm',
+      keepHtml: false,
+      ...options,
+    }
+  }
+
   /**
    * Generates a markdown code from the input.
    * The input can be a HTML string (will be parsed using browser's built-in functions)
@@ -22,7 +33,7 @@ export class HtmlMd {
     } else {
       throw new Error('Invalid input to parse.')
     }
-    const generator = new MdGenerator()
+    const generator = new MdGenerator(this.#options)
     return generator.generate(root)
   }
 }

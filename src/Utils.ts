@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 /**
  * Cleans the white spaces.
  */

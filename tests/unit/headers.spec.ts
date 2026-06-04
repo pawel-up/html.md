@@ -66,4 +66,13 @@ test.group('HtmlMd / Parsing headers', () => {
     const result = factory.generate(input)
     assert.equal(result, `# \n\n`)
   })
+
+  test('trims header text and eliminates double spaces from ignored children', ({ assert }) => {
+    const factory = new HtmlMd()
+    const input = `<h2 id="overview">
+<a aria-hidden="true" tabindex="-1" href="#overview"><span class="icon icon-link"></span></a>
+Overview</h2>`
+    const result = factory.generate(input)
+    assert.equal(result, `## Overview\n\n`)
+  })
 })

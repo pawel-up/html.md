@@ -10,7 +10,13 @@ test.group('HtmlMd / Code blocks / Inline code', (group) => {
   test('adds the inline code markers', ({ assert }) => {
     const input = `<p>Test <code>Line</code></p>`
     const result = factory.generate(input)
-    assert.equal(result, 'Test  `Line`\n\n')
+    assert.equal(result, 'Test `Line`\n\n')
+  })
+
+  test('handles inline code inside a paragraph without double spacing', ({ assert }) => {
+    const input = `<p>The <code>request.file()</code> method gives you access to the uploaded file by its field name.</p>`
+    const result = factory.generate(input)
+    assert.equal(result, 'The `request.file()` method gives you access to the uploaded file by its field name.\n\n')
   })
 })
 
@@ -36,5 +42,17 @@ test.group('HtmlMd / Code blocks / Code blocks', (group) => {
     const input = `<pre><p>This is &lt;a href="https://domain.com"&gta code&lt;/a&gt</p></pre>`
     const result = factory.generate(input)
     assert.equal(result, '')
+  })
+
+  test('detects language from class="language-xyz" on code tag', ({ assert }) => {
+    const input = `<pre><code class="language-javascript">console.log("hello");</code></pre>`
+    const result = factory.generate(input)
+    assert.equal(result, '```javascript\nconsole.log("hello");\n```\n\n')
+  })
+
+  test('detects language from class="lang-xyz" on pre tag', ({ assert }) => {
+    const input = `<pre class="lang-typescript"><code>const x = 42;</code></pre>`
+    const result = factory.generate(input)
+    assert.equal(result, '```typescript\nconst x = 42;\n```\n\n')
   })
 })

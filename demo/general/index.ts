@@ -13,8 +13,14 @@ class ComponentPage extends DemoPage {
   async initialize(): Promise<void> {
     this.render()
     await this.raf()
-    const value = await this.downloadHtmlContent()
-    this.setInput(value)
+    const stored = localStorage.getItem('html-md-demo-content')
+    if (stored !== null) {
+      this.setInput(stored)
+      this.parseHandler()
+    } else {
+      const value = await this.downloadHtmlContent()
+      this.setInput(value)
+    }
   }
 
   async downloadHtmlContent(): Promise<string> {
@@ -33,9 +39,18 @@ class ComponentPage extends DemoPage {
   parseHandler() {
     const input = document.getElementById('parserInput') as HTMLTextAreaElement
     const content = input.value
+    localStorage.setItem('html-md-demo-content', content)
     const parser = new HtmlMd()
     const result = parser.generate(content)
     this.output = result
+    this.render()
+  }
+
+  async resetHandler() {
+    localStorage.removeItem('html-md-demo-content')
+    const value = await this.downloadHtmlContent()
+    this.setInput(value)
+    this.output = undefined
     this.render()
   }
 
@@ -64,7 +79,10 @@ class ComponentPage extends DemoPage {
     return html`
       <div class="html-content-input">
         <textarea id="parserInput"></textarea>
-        <button @click="${this.parseHandler}">Parse</button>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="filled" @click="${this.parseHandler}">Parse</button>
+          <button class="outlined" @click="${this.resetHandler}">Reset</button>
+        </div>
       </div>
     `
   }

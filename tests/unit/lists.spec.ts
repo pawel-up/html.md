@@ -20,6 +20,12 @@ test.group('HtmlMd / Parsing lists / Unordered lists', (group) => {
     assert.equal(result, '- This is `a code`\n\n')
   })
 
+  test('does not escape hyphens after inline code block in list item', ({ assert }) => {
+    const input = '<ul><li><code>tmpPath</code> - Where the file is currently stored</li></ul>'
+    const result = factory.generate(input)
+    assert.equal(result, '- `tmpPath` - Where the file is currently stored\n\n')
+  })
+
   test('processes a simple list as element', ({ assert }) => {
     const ul = document.createElement('ul')
     ;['a', 'b', 'c'].forEach((content) => {
